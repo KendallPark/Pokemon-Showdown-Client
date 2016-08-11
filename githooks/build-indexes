@@ -37,6 +37,8 @@ function requireNoCache(pathSpec) {
 	return require(pathSpec);
 }
 
+var moreAliases = {};
+
 /*********************************************************
  * Build search-index.js
  *********************************************************/
@@ -200,7 +202,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	let buf = '// automatically built with githooks/build-indexes\n\n';
 
 	// process.stdout.write("\n  ");
-	for (const genIdent of [1]) {
+	for (const genIdent of [2]) {
 		const isDoubles = (genIdent < 0);
 		const genNum = (isDoubles ? 6 : genIdent);
 		const gen = 'gen' + genNum;
@@ -493,7 +495,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	// Past gen table
 	//
 
-	for (const genNum of [1]) {
+	for (const genNum of [2]) {
 		const gen = 'gen' + genNum;
 		const genData = Tools.mod('microrandom').data;
 		const nextGenData = Tools.mod(gen + 'ou').data;
@@ -543,6 +545,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			}
 			if (pastEntry.name !== nextEntry.name) {
 				overrideName[id] = pastEntry.name;
+				var text = ('' + pastEntry.name).toLowerCase().replace(/[^a-z0-9]+/g, '');
+				moreAliases[text] = nowEntry.name;
 			}
 		}
 
@@ -636,6 +640,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
  *********************************************************/
 
 {
+	console.log(moreAliases);
 	const Aliases = requireNoCache(path.resolve(remoteDataDir, 'aliases.js')).BattleAliases;
 	const buf = 'exports.BattleAliases = ' + es3stringify(Aliases) + ';';
 	fs.writeFileSync(path.resolve(dataDir, 'aliases.js'), buf);
