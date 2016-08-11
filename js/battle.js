@@ -3149,6 +3149,10 @@ var Battle = (function () {
 		}, 350, callback);
 	};
 	Battle.prototype.useMove = function (pokemon, move, target, kwargs) {
+		var name = move.name;
+		if (move.id in BattleTeambuilderTable['gen' + this.gen].overrideName) {
+			name = BattleTeambuilderTable['gen' + this.gen].overrideName[move.id];
+		}
 		var fromeffect = Tools.getEffect(kwargs.from);
 		pokemon.clearMovestatuses();
 		if (move.id === 'focuspunch') {
@@ -3243,7 +3247,7 @@ var Battle = (function () {
 				// 		button = (name === 'Diatom' ? "thanks diatom" : null);
 				// 	}
 				} else {
-					this.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
+					this.message(pokemon.getName() + ' used <strong>' + name + '</strong>!');
 				}
 				if (!fromeffect.id || fromeffect.id === 'pursuit') {
 					var pp = (target && target.side !== pokemon.side && toId(target.ability) === 'pressure' ? 2 : 1);

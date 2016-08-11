@@ -241,9 +241,14 @@ var BattleTooltips = (function () {
 			additionalInfo = 'Calls ' + Tools.getTypeIcon(this.getMoveType(calls, pokemon)) + ' ' + calls.name;
 		}
 
+		var name = move.name;
+		if (move.id in BattleTeambuilderTable['gen' + this.battle.gen].overrideName) {
+			name = BattleTeambuilderTable['gen' + this.battle.gen].overrideName[move.id];
+		}
+
 		text = '<div class="tooltipinner"><div class="tooltip">';
 		var category = Tools.getCategory(move, this.battle.gen, moveType);
-		text += '<h2>' + move.name + '<br />' + Tools.getTypeIcon(moveType) + ' <img src="' + Tools.resourcePrefix;
+		text += '<h2>' + name + '<br />' + Tools.getTypeIcon(moveType) + ' <img src="' + Tools.resourcePrefix;
 		text += 'sprites/categories/' + category + '.png" alt="' + category + '" /></h2>';
 		text += basePowerText;
 		if (additionalInfo) text += '<p>' + additionalInfo + '</p>';
@@ -468,6 +473,9 @@ var BattleTooltips = (function () {
 			for (var i = 0; i < myPokemon.moves.length; i++) {
 				var move = Tools.getMove(myPokemon.moves[i]);
 				var name = move.name;
+				if (move.id in BattleTeambuilderTable['gen' + this.battle.gen].overrideName) {
+					name = BattleTeambuilderTable['gen' + this.battle.gen].overrideName[move.id];
+				}
 				var pp = 0, maxpp = 0;
 				if (battlePokemon && battlePokemon.moveTrack) {
 					for (var j = 0; j < battlePokemon.moveTrack.length; j++) {
@@ -732,8 +740,12 @@ var BattleTooltips = (function () {
 			}
 			maxpp = Math.floor(maxpp * 8 / 5);
 		}
-		if (!ppUsed) return move.name + (showKnown ? ' <small>(revealed)</small>' : '');
-		return move.name + ' <small>(' + (maxpp - ppUsed) + '/' + maxpp + ')</small>';
+		var name = move.name;
+		if (move.id in BattleTeambuilderTable['gen' + this.battle.gen].overrideName) {
+			name = BattleTeambuilderTable['gen' + this.battle.gen].overrideName[move.id];
+		}
+		if (!ppUsed) return name + (showKnown ? ' <small>(revealed)</small>' : '');
+		return name + ' <small>(' + (maxpp - ppUsed) + '/' + maxpp + ')</small>';
 	};
 
 	// Functions to calculate speed ranges of an opponent.

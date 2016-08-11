@@ -877,8 +877,14 @@ var Tools = {
 		if (!move || typeof move === 'string') {
 			var name = $.trim(move || '');
 			var id = toId(name);
+			if (window.BattleAliases[id]) {
+				var alias = window.BattleAliases[id];
+				id = toId(alias);
+			}
 			move = (window.BattleMovedex && window.BattleMovedex[id]) || {};
-			if (move.name) move.exists = true;
+			if (move.name) {
+				move.exists = true;
+			}
 
 			if (!move.exists && id.substr(0, 11) === 'hiddenpower' && id.length > 11) {
 				var matches = /([a-z]*)([0-9]*)/.exec(id);
