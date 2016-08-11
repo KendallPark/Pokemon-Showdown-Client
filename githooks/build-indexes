@@ -8,13 +8,16 @@ const child_process = require("child_process");
 const rootDir = path.resolve(__dirname, '..');
 const dataDir = path.resolve(rootDir, 'data');
 
+const remoteRootDir = path.resolve(__dirname, '..', '..', 'micromon');
+const remoteDataDir = path.resolve(remoteRootDir, 'data');
+
 process.stdout.write("Syncing data from Git repository... ");
 child_process.execSync('git pull', {
-	cwd: path.resolve(dataDir, 'Pokemon-Showdown'),
+	cwd: remoteRootDir,
 });
 console.log("DONE");
 
-const Tools = require('../data/Pokemon-Showdown/tools');
+const Tools = require(path.resolve(remoteRootDir, 'tools'));
 const toId = Tools.getId;
 process.stdout.write("Loading gen 6 data... ");
 Tools.includeData();
@@ -197,7 +200,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	let buf = '// automatically built with githooks/build-indexes\n\n';
 
 	// process.stdout.write("\n  ");
-	for (const genIdent of [6, -6, 5, 4, 3, 2, 1]) {
+	for (const genIdent of [1]) {
 		const isDoubles = (genIdent < 0);
 		const genNum = (isDoubles ? 6 : genIdent);
 		const gen = 'gen' + genNum;
@@ -212,25 +215,25 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			})();
 			if (template.gen > genNum) continue;
 			const tier = (() => {
-				if (isDoubles) {
-					let banlist = Tools.getFormat('doublesou').banlist;
-					if (banlist.indexOf(template.species) >= 0 || banlist.indexOf(template.baseSpecies) >= 0) {
-						return "DUber";
-					}
-					banlist = Tools.getFormat('doublesuu').banlist;
-					if (banlist.indexOf(template.species) >= 0 || banlist.indexOf(template.baseSpecies) >= 0) {
-						return "DOU";
-					}
-					banlist = Tools.getFormat('doublesnu').banlist;
-					if (banlist) {
-						if (banlist.indexOf(template.species) >= 0 || banlist.indexOf(template.baseSpecies) >= 0) {
-							return "DUU";
-						}
-					}
-					if (template.tier === 'LC' || template.tier === 'LC Ubers' || template.tier === 'NFE') return 'NFE';
-					if (!banlist) return "DUU";
-					return "DNU";
-				}
+				// if (isDoubles) {
+				// 	let banlist = Tools.getFormat('doublesou').banlist;
+				// 	if (banlist.indexOf(template.species) >= 0 || banlist.indexOf(template.baseSpecies) >= 0) {
+				// 		return "DUber";
+				// 	}
+				// 	banlist = Tools.getFormat('doublesuu').banlist;
+				// 	if (banlist.indexOf(template.species) >= 0 || banlist.indexOf(template.baseSpecies) >= 0) {
+				// 		return "DOU";
+				// 	}
+				// 	banlist = Tools.getFormat('doublesnu').banlist;
+				// 	if (banlist) {
+				// 		if (banlist.indexOf(template.species) >= 0 || banlist.indexOf(template.baseSpecies) >= 0) {
+				// 			return "DUU";
+				// 		}
+				// 	}
+				// 	if (template.tier === 'LC' || template.tier === 'LC Ubers' || template.tier === 'NFE') return 'NFE';
+				// 	if (!banlist) return "DUU";
+				// 	return "DNU";
+				// }
 				return template.tier;
 			})();
 			if (template.forme) {
@@ -490,11 +493,15 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	// Past gen table
 	//
 
-	for (const genNum of [5, 4, 3, 2, 1]) {
+	for (const genNum of [1]) {
 		const gen = 'gen' + genNum;
-		const genData = Tools.mod(gen + 'ou').data;
-		const nextGenData = Tools.mod('gen' + (genNum + 1) + 'ou').data;
+		const genData = Tools.mod('microrandom').data;
+		const nextGenData = Tools.mod(gen + 'ou').data;
 		const overrideStats = {};
+		// const gen = 'gen' + genNum;
+		// const genData = Tools.mod(gen + 'ou').data;
+		// const nextGenData = Tools.mod('gen' + (genNum + 1) + 'ou').data;
+		// const overrideStats = {};
 		BattleTeambuilderTable[gen].overrideStats = overrideStats;
 		for (const id in genData.Pokedex) {
 			const pastEntry = genData.Pokedex[id];
@@ -516,6 +523,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		BattleTeambuilderTable[gen].overridePP = overridePP;
 		const overrideMoveDesc = {};
 		BattleTeambuilderTable[gen].overrideMoveDesc = overrideMoveDesc;
+		const overrideName = {};
+		BattleTeambuilderTable[gen].overrideName = overrideName;
 		for (const id in genData.Movedex) {
 			const pastEntry = genData.Movedex[id];
 			const nowEntry = Tools.data.Movedex[id];
@@ -531,6 +540,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			}
 			if (pastEntry.shortDesc !== nextEntry.shortDesc) {
 				overrideMoveDesc[id] = pastEntry.shortDesc;
+			}
+			if (pastEntry.name !== nextEntry.name) {
+				overrideName[id] = pastEntry.name;
 			}
 		}
 
@@ -560,11 +572,10 @@ console.log("DONE");
 process.stdout.write("Building `data/pokedex.js`... ");
 
 {
-	const Pokedex = requireNoCache('../data/Pokemon-Showdown/data/pokedex.js').BattlePokedex;
+	const Pokedex = requireNoCache(path.resolve(remoteDataDir, 'pokedex.js')).BattlePokedex;
 	for (const id in Pokedex) {
 		const entry = Pokedex[id];
 		if (Tools.data.FormatsData[id]) {
-			// console.log('formatsentry:' + id);
 			const formatsEntry = Tools.data.FormatsData[id];
 			if (formatsEntry.tier) entry.tier = formatsEntry.tier;
 			if (formatsEntry.requiredItem) entry.requiredItem = formatsEntry.requiredItem;
@@ -585,7 +596,7 @@ console.log("DONE");
 process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.js`...");
 
 {
-	const Movedex = requireNoCache('../data/Pokemon-Showdown/data/moves.js').BattleMovedex;
+	const Movedex = requireNoCache(path.resolve(remoteDataDir, 'moves.js')).BattleMovedex;
 	const buf = 'exports.BattleMovedex = ' + es3stringify(Movedex) + ';';
 	fs.writeFileSync(path.resolve(dataDir, 'moves.js'), buf);
 }
@@ -595,7 +606,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
  *********************************************************/
 
 {
-	const Items = requireNoCache('../data/Pokemon-Showdown/data/items.js').BattleItems;
+	const Items = requireNoCache(path.resolve(remoteDataDir, 'items.js')).BattleItems;
 	const buf = 'exports.BattleItems = ' + es3stringify(Items) + ';';
 	fs.writeFileSync(path.resolve(dataDir, 'items.js'), buf);
 }
@@ -605,7 +616,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
  *********************************************************/
 
 {
-	const Abilities = requireNoCache('../data/Pokemon-Showdown/data/abilities.js').BattleAbilities;
+	const Abilities = requireNoCache(path.resolve(remoteDataDir, 'abilities.js')).BattleAbilities;
 	const buf = 'exports.BattleAbilities = ' + es3stringify(Abilities) + ';';
 	fs.writeFileSync(path.resolve(dataDir, 'abilities.js'), buf);
 }
@@ -615,7 +626,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
  *********************************************************/
 
 {
-	const TypeChart = requireNoCache('../data/Pokemon-Showdown/data/typechart.js').BattleTypeChart;
+	const TypeChart = requireNoCache(path.resolve(remoteDataDir, 'typechart.js')).BattleTypeChart;
 	const buf = 'exports.BattleTypeChart = ' + es3stringify(TypeChart) + ';';
 	fs.writeFileSync(path.resolve(dataDir, 'typechart.js'), buf);
 }
@@ -625,7 +636,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
  *********************************************************/
 
 {
-	const Aliases = requireNoCache('../data/Pokemon-Showdown/data/aliases.js').BattleAliases;
+	const Aliases = requireNoCache(path.resolve(remoteDataDir, 'aliases.js')).BattleAliases;
 	const buf = 'exports.BattleAliases = ' + es3stringify(Aliases) + ';';
 	fs.writeFileSync(path.resolve(dataDir, 'aliases.js'), buf);
 }
@@ -635,7 +646,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
  *********************************************************/
 
 {
-	const Learnsets = requireNoCache('../data/Pokemon-Showdown/data/learnsets.js').BattleLearnsets;
+	const Learnsets = requireNoCache(path.resolve(remoteDataDir, 'learnsets.js')).BattleLearnsets;
 	const buf = 'exports.BattleLearnsets = ' + es3stringify(Learnsets) + ';';
 	fs.writeFileSync(path.resolve(dataDir, 'learnsets.js'), buf);
 }

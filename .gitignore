@@ -3,6 +3,7 @@
 /js/config.js
 /index.php
 /data/*
+!/data/teambuilder-tables.js
 !/data/graphics.js
 !/data/pokedex-mini.js
 !/data/pokedex-mini-bw.js
