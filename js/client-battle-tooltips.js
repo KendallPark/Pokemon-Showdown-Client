@@ -257,6 +257,7 @@ var BattleTooltips = (function () {
 			if (this.battle.gen < 6) {
 				var desc = move.shortDesc;
 				for (var i = this.battle.gen; i < 6; i++) {
+					if ([1, 3, 4, 5].includes(i)) continue;
 					if (move.id in BattleTeambuilderTable['gen' + i].overrideMoveDesc) {
 						desc = BattleTeambuilderTable['gen' + i].overrideMoveDesc[move.id];
 						break;
