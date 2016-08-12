@@ -244,7 +244,7 @@
 				return;
 			}
 
-			if (this.get('userid') !== userid) {
+			if (false) {
 				var self = this;
 				$.get(this.getActionPHP(), {
 					act: 'getassertion',
