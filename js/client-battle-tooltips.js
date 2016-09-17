@@ -242,8 +242,8 @@ var BattleTooltips = (function () {
 		}
 
 		var name = move.name;
-		if (move.id in BattleTeambuilderTable['gen' + this.battle.gen].overrideName) {
-			name = BattleTeambuilderTable['gen' + this.battle.gen].overrideName[move.id];
+		if (move.id in BattleTeambuilderTable[this.battle.mod].overrideName) {
+			name = BattleTeambuilderTable[this.battle.mod].overrideName[move.id];
 		}
 
 		text = '<div class="tooltipinner"><div class="tooltip">';
@@ -255,14 +255,15 @@ var BattleTooltips = (function () {
 		text += '<p>Accuracy: ' + accuracy + '</p>';
 		if (move.desc) {
 			if (this.battle.gen < 6) {
-				var desc = move.shortDesc;
-				for (var i = this.battle.gen; i < 6; i++) {
-					if ([1, 3, 4, 5].includes(i)) continue;
-					if (move.id in BattleTeambuilderTable['gen' + i].overrideMoveDesc) {
-						desc = BattleTeambuilderTable['gen' + i].overrideMoveDesc[move.id];
-						break;
-					}
-				}
+				const desc = BattleTeambuilderTable[this.battle.mod].overrideMoveDesc[move.id];
+				// var desc = move.shortDesc;
+				// for (var i = this.battle.gen; i < 6; i++) {
+				// 	if ([1, 3, 4, 5].includes(i)) continue;
+				// 	if (move.id in BattleTeambuilderTable['gen' + i].overrideMoveDesc) {
+				// 		desc = BattleTeambuilderTable['gen' + i].overrideMoveDesc[move.id];
+				// 		break;
+				// 	}
+				// }
 				text += '<p class="section">' + desc + '</p>';
 			} else {
 				text += '<p class="section">';
@@ -364,6 +365,10 @@ var BattleTooltips = (function () {
 			types = ['Normal'];
 		} else if (gen < 6 && types[1] === 'Fairy') {
 			types = [types[0]];
+		}
+
+		if (BattleTeambuilderTable[this.battle.mod].overrideType[template.speciesid]) {
+			types = BattleTeambuilderTable[this.battle.mod].overrideType[template.speciesid];
 		}
 
 		var isTypeChanged = false;
@@ -474,8 +479,8 @@ var BattleTooltips = (function () {
 			for (var i = 0; i < myPokemon.moves.length; i++) {
 				var move = Tools.getMove(myPokemon.moves[i]);
 				var name = move.name;
-				if (move.id in BattleTeambuilderTable['gen' + this.battle.gen].overrideName) {
-					name = BattleTeambuilderTable['gen' + this.battle.gen].overrideName[move.id];
+				if (move.id in BattleTeambuilderTable[this.battle.mod].overrideName) {
+					name = BattleTeambuilderTable[this.battle.mod].overrideName[move.id];
 				}
 				var pp = 0, maxpp = 0;
 				if (battlePokemon && battlePokemon.moveTrack) {
@@ -736,14 +741,14 @@ var BattleTooltips = (function () {
 			move = Tools.getMove(moveName);
 			maxpp = move.pp;
 			if (this.battle.gen < 6) {
-				var table = BattleTeambuilderTable['gen' + this.battle.gen];
+				var table = BattleTeambuilderTable[this.battle.mod];
 				if (move.id in table.overridePP) maxpp = table.overridePP[move.id];
 			}
 			maxpp = Math.floor(maxpp * 8 / 5);
 		}
 		var name = move.name;
-		if (move.id in BattleTeambuilderTable['gen' + this.battle.gen].overrideName) {
-			name = BattleTeambuilderTable['gen' + this.battle.gen].overrideName[move.id];
+		if (move.id in BattleTeambuilderTable[this.battle.mod].overrideName) {
+			name = BattleTeambuilderTable[this.battle.mod].overrideName[move.id];
 		}
 		if (!ppUsed) return name + (showKnown ? ' <small>(revealed)</small>' : '');
 		return name + ' <small>(' + (maxpp - ppUsed) + '/' + maxpp + ')</small>';
@@ -753,7 +758,7 @@ var BattleTooltips = (function () {
 	BattleTooltips.prototype.getTemplateMinSpeed = function (template, level) {
 		var baseSpe = template.baseStats['spe'];
 		if (this.battle.gen < 6) {
-			var overrideStats = BattleTeambuilderTable['gen' + this.battle.gen].overrideStats[template.id];
+			var overrideStats = BattleTeambuilderTable[this.battle.mod].overrideStats[template.id];
 			if (overrideStats && 'spe' in overrideStats) baseSpe = overrideStats['spe'];
 		}
 
@@ -763,7 +768,7 @@ var BattleTooltips = (function () {
 	BattleTooltips.prototype.getTemplateMaxSpeed = function (template, level) {
 		var baseSpe = template.baseStats['spe'];
 		if (this.battle.gen < 6) {
-			var overrideStats = BattleTeambuilderTable['gen' + this.battle.gen].overrideStats[template.id];
+			var overrideStats = BattleTeambuilderTable[this.battle.mod].overrideStats[template.id];
 			if (overrideStats && 'spe' in overrideStats) baseSpe = overrideStats['spe'];
 		}
 
@@ -778,6 +783,10 @@ var BattleTooltips = (function () {
 		var myPokemon = this.room.myPokemon[pokemon.slot];
 		var ability = Tools.getAbility(myPokemon.baseAbility).name;
 		var moveType = move.type;
+		if (BattleTeambuilderTable[this.battle.mod].overrideMoveType[move.id]) {
+			moveType = BattleTeambuilderTable[this.battle.mod].overrideMoveType[move.id];
+		}
+
 		// Normalize is the first move type changing effect.
 		if (ability === 'Normalize') {
 			moveType = 'Normal';
@@ -831,6 +840,7 @@ var BattleTooltips = (function () {
 			if (ability === 'Pixilate') moveType = 'Fairy';
 			if (ability === 'Refrigerate') moveType = 'Ice';
 		}
+
 		return moveType;
 	};
 
@@ -840,7 +850,7 @@ var BattleTooltips = (function () {
 		var ability = Tools.getAbility(pokemon.ability || myPokemon.baseAbility).name;
 		var accuracy = move.accuracy;
 		if (this.battle.gen < 6) {
-			var table = BattleTeambuilderTable['gen' + this.battle.gen];
+			var table = BattleTeambuilderTable[this.battle.mod];
 			if (move.id in table.overrideAcc) accuracy = table.overrideAcc[move.id];
 		}
 		var accuracyComment = '%';
@@ -902,7 +912,7 @@ var BattleTooltips = (function () {
 		var item = {};
 		var basePower = move.basePower;
 		if (this.battle.gen < 6) {
-			var table = BattleTeambuilderTable['gen' + this.battle.gen];
+			var table = BattleTeambuilderTable[this.battle.mod];
 			if (move.id in table.overrideBP) basePower = table.overrideBP[move.id];
 		}
 		var basePowerComment = '';

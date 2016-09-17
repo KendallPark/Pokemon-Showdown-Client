@@ -517,8 +517,9 @@
 					var moveData = curActive.moves[i];
 					var move = Tools.getMove(moveData.move);
 					var name = move.name;
-					if (move.id in BattleTeambuilderTable['gen' + this.battle.gen].overrideName) {
-						name = BattleTeambuilderTable['gen' + this.battle.gen].overrideName[move.id];
+					console.log("heyyysdfsdf", this.battle);
+					if (move.id in BattleTeambuilderTable[this.battle.mod].overrideName) {
+						name = BattleTeambuilderTable[this.battle.mod].overrideName[move.id];
 					}
 					var pp = moveData.pp + '/' + moveData.maxpp;
 					if (!moveData.maxpp) pp = '&ndash;';

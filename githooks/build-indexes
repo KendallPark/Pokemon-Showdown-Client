@@ -640,7 +640,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
  *********************************************************/
 
 {
-	console.log(moreAliases);
+	// console.log(moreAliases);
 	const Aliases = requireNoCache(path.resolve(remoteDataDir, 'aliases.js')).BattleAliases;
 	const buf = 'exports.BattleAliases = ' + es3stringify(Aliases) + ';';
 	fs.writeFileSync(path.resolve(dataDir, 'aliases.js'), buf);

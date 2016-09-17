@@ -2375,6 +2375,7 @@ var Battle = (function () {
 		this.p1 = this.mySide;
 		this.p2 = this.yourSide;
 		this.gen = 6;
+		this.mod = "micro";
 	};
 	Battle.prototype.updateGen = function () {
 		var gen = this.gen;
@@ -3150,8 +3151,8 @@ var Battle = (function () {
 	};
 	Battle.prototype.useMove = function (pokemon, move, target, kwargs) {
 		var name = move.name;
-		if (move.id in BattleTeambuilderTable['gen' + this.gen].overrideName) {
-			name = BattleTeambuilderTable['gen' + this.gen].overrideName[move.id];
+		if (move.id in BattleTeambuilderTable[this.mod].overrideName) {
+			name = BattleTeambuilderTable[this.mod].overrideName[move.id];
 		}
 		var fromeffect = Tools.getEffect(kwargs.from);
 		pokemon.clearMovestatuses();
